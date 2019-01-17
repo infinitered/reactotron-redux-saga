@@ -14,6 +14,6 @@ declare module 'reactotron-redux-saga' {
         except?: string[];
     }
 
-    export default function sagaPlugin(config: PluginConfig = {}): (tron: Reactotron) => ReactotronPlugin;
+    export default function sagaPlugin(config: PluginConfig): (tron: Reactotron) => ReactotronPlugin;
 }
 
