@@ -1,9 +1,9 @@
 // Module Augmentation for plugin
 declare module 'reactotron-react-native' {
-    import { Monitor } from 'redux-saga';
+    import { SagaMonitor } from 'redux-saga';
 
     export interface Reactotron {
-        createSagaMonitor(): Monitor;
+        createSagaMonitor(): SagaMonitor;
     }
 }
 
