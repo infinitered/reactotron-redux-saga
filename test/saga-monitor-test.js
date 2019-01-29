@@ -9,6 +9,7 @@ const reactotron = {
 test('has the right functions to become a saga monitor', t => {
   const monitor = usePlugin()(reactotron).features.createSagaMonitor()
 
+  t.is(typeof monitor.rootSagaStarted, 'function')
   t.is(typeof monitor.effectTriggered, 'function')
   t.is(typeof monitor.effectResolved, 'function')
   t.is(typeof monitor.effectRejected, 'function')
