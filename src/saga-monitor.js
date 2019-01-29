@@ -49,6 +49,14 @@ export default (reactotron, options, pluginConfig = {}) => {
 
   // ---------------- Starting -----------------------------
 
+  
+  var rootSagaStarted = function rootSagaStarted({effectId,saga,args}) {
+    var effectInfo = {
+      effectId,saga,args
+    };
+    effects[effectId] = effectInfo;
+  }
+  
   // redux-saga calls this when an effect is triggered (started)
   const effectTriggered = description => {
     const { effect, effectId, parentEffectId, label } = description
@@ -261,6 +269,7 @@ export default (reactotron, options, pluginConfig = {}) => {
 
   // the interface for becoming a redux-saga monitor
   return {
+    rootSagaStarted,
     effectTriggered,
     effectResolved,
     effectRejected,
