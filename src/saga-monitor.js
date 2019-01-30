@@ -1,20 +1,10 @@
-import * as is from '@redux-saga/is'
+import * as is from "@redux-saga/is"
 import {
   contains,
-  reject,
-  values,
-  pluck,
   isNil,
-  split,
-  pathOr,
   last,
   forEach,
-  propEq,
-  filter,
-  __,
-} from 'ramda';
-import getEffectName from './get-effect-name';
-import getEffectDescription from './get-effect-description';
+} from "ramda"
 import {
   ITERATOR,
   CALL,
@@ -25,134 +15,117 @@ import {
   RESOLVED,
   REJECTED,
   CANCELLED,
-} from './saga-constants';
+} from "./saga-constants"
+import mng from "./manager"
+import { effectTypes } from 'redux-saga/effects'
+import getDescri from './get-effect-description';
+import getName from './get-effect-name';
+const isRaceEffect = eff => is.effect(eff) && eff.type === effectTypes.RACE
 // import { reject, values, pluck, isNil, split, pathOr, last, forEach, propEq, filter, __, map, omit } from 'ramda'
 
 // creates a saga monitor
 export default (reactotron, options, pluginConfig = {}) => {
   // a lookup table of effects - keys are numbers, values are objects
-  const effects = {};
-
-  const exceptions = pluginConfig.except || [];
-
-  // filtering that effect table
-  const byParentId = propEq('parentEffectId', __);
-  const byLabel = propEq('label', __);
-  const getChildEffectInfos = parentEffectId => filter(byParentId(parentEffectId), values(effects));
-  const getChildEffectIds = effectId => pluck('effectId', getChildEffectInfos(effectId));
-
+  const Manager = new mng()
+  const exceptions = pluginConfig.except || []
   // start a relative timer
-  const timer = reactotron.startTimer();
-
+  const timer = reactotron.startTimer()
   // ---------------- Sending Effect Updates ----------------
-  // const sendReactotronEffectTree = () => reactotron.send('saga.effect.update', effects)
+  //const sendReactotronEffectTree = () => reactotron.send('saga.effect.update', effects)
 
   // ---------------- Starting -----------------------------
 
-
-  const rootSagaStarted = function rootSagaStarted(description) {
-    const { effectId, saga, args } = description;
-
-    const effectInfo = {
-      effectId, saga, args,
-      status: PENDING,
-      name: saga.name,
-      startedAt: timer(),
-      description: getEffectDescription({root: true, ...description}),
-      result: null,
-    };
-    effects[effectId] = effectInfo;
-  };
+  const rootSagaStarted = function rootSagaStarted (description) {
+    Manager.setRootEffect(
+      description.effectId,
+      Object.assign({}, description, {
+        status: PENDING,
+        start: timer(),
+      }),
+    )
+  }
 
   // redux-saga calls this when an effect is triggered (started)
   const effectTriggered = (description) => {
-    const {
-      effect, effectId, parentEffectId, label,
-    } = description;
-
-    // create an EffectInfo to hold the details
-    const effectInfo = {
-      effectId,
-      parentEffectId,
-      effect,
-      label,
-      status: PENDING,
-      name: getEffectName(effect),
-      description: getEffectDescription(effect),
-      result: null,
-      startedAt: timer(),
-    };
-
-    // store it
-    effects[effectId] = effectInfo;
-
-    // send it
-    // sendReactotronEffectTree()
-  };
+    Manager.set(
+      description.effectId,
+      Object.assign({}, description, {
+        status: PENDING,
+        start: timer(),
+        name: getName(description.effect),
+        description: getDescri(description.effect),
+      }),
+    )
+  }
 
   // ---------------- Finishing ----------------------------
 
   // update the duration of the effect
   const updateDuration = (effectInfo) => {
-    effectInfo.duration = timer() - effectInfo.startedAt;
-  };
+    effectInfo.duration = timer() - effectInfo.start
+  }
 
   // fires when a task has been resolved
   const taskResolved = (effectId, taskResult) => {
     // lookup this effect info
-    const effectInfo = effects[effectId];
-    updateDuration(effectInfo);
-    const { duration } = effectInfo;
+    const effectInfo = Manager.get(effectId)
+    updateDuration(effectInfo)
+    const { duration } = effectInfo
 
     // grab the parent too
-    const { parentEffectId } = effectInfo;
-    const parentEffectInfo = effects[parentEffectId];
-    const children = [];
+    const { parentEffectId } = effectInfo
+    const parentEffectInfo = Manager.get(parentEffectId)
+    let children = []
 
     // a human friendly name of the saga task
-    let sagaDescription;
+    let sagaDescription
     // what caused the trigger
-    let triggerType;
-
+    let triggerType
     // for FORK tasks, we have a bunch on things to pass along
-    if (effectInfo.name === FORK) {
-      const args = pathOr([], split('.', 'effect.FORK.args'), effectInfo);
-      const lastArg = last(args);
-      triggerType = lastArg && lastArg.type;
+    if (effectInfo.name && effectInfo.name === FORK) {
+      const args = effectInfo.effect.payload.args
+      const lastArg = last(args)
+      triggerType = lastArg && lastArg.type
       if (parentEffectInfo) {
-        if (parentEffectInfo.name === ITERATOR) {
-          sagaDescription = parentEffectInfo.description;
+        if (parentEffectInfo.name && parentEffectInfo.name=== ITERATOR) {
+
+          sagaDescription = parentEffectInfo.description
         }
       } else {
-        sagaDescription = '(root)';
-        triggerType = `${effectInfo.description}()`;
+        sagaDescription = "(root)"
+
+        triggerType = `${effectInfo.description}()`
       }
 
       // flatten out the nested effects
       const buildChild = (depth, effectId) => {
-        const sourceEffectInfo = effects[effectId];
-        if (isNil(sourceEffectInfo)) return;
+        const sourceEffectInfo = Manager.get(effectId)
+        if (isNil(sourceEffectInfo)) return
+        let extra = null
+        if (sourceEffectInfo.name) {
 
-        let extra = null;
-        if (sourceEffectInfo.effect) {
           switch (sourceEffectInfo.name) {
             case CALL:
-              extra = sourceEffectInfo.effect[sourceEffectInfo.name].args;
-              break;
+              extra = sourceEffectInfo.effect.payload.args
+              break
 
             case PUT:
-              extra = sourceEffectInfo.effect[sourceEffectInfo.name].action;
-              break;
+              extra = sourceEffectInfo.effect.payload.action
+              break
+
+            case SELECT:
+              extra = sourceEffectInfo.effect.payload.action
+              break
 
             // children handle this
             case RACE:
-              break;
+              break
 
-              // TODO: More of customizations needed here
+            // TODO: More of customizations needed here
 
             default:
-              extra = sourceEffectInfo.effect[sourceEffectInfo.name];
-              break;
+              extra = sourceEffectInfo.effect.payload
+              break
           }
         }
         // assemble the structure
@@ -168,113 +141,106 @@ export default (reactotron, options, pluginConfig = {}) => {
           loser: sourceEffectInfo.loser || null,
           result: sourceEffectInfo.result || null,
           extra: extra || null,
-        });
+        })
 
         // rerun this function for our children
-        forEach(x => buildChild(depth + 1, x), getChildEffectIds(effectId));
-      };
-      const xs = getChildEffectIds(effectId);
-      forEach(effectId => buildChild(0, effectId), xs);
+        forEach(x => buildChild(depth + 1, x), Manager.getChildIds(effectId))
+      }
+      const xs = Manager.getChildIds(effectId);
+      forEach(effectId => buildChild(0, effectId), xs)
     }
 
     // saga not blacklisted?
     if (!contains(effectInfo.description, exceptions)) {
-      reactotron.send('saga.task.complete', {
+      reactotron.send("saga.task.complete", {
         triggerType: triggerType || effectInfo.description,
         description: sagaDescription,
         duration: Math.round(duration),
         children,
-      });
+      })
     }
-    // effects = omit(map(String, pluck('effectId', children)), effects)
-  };
+  }
 
   // redux-saga calls this when an effect is resolved (successfully or not)
   const effectResolved = (effectId, result) => {
-    // lookup this effect info and set the rsult
-    const effectInfo = effects[effectId];
-    updateDuration(effectInfo);
-    effectInfo.result = result;
-
-    // this is a task
-    if (is.task(result)) {
-      // when the task promise resolves,
-      const onTaskResult = (taskResult) => {
-        if (result.isCancelled()) {
-          effectCancelled(effectId);
-        } else {
-          effectResolved(effectId, taskResult);
-          taskResolved(effectId, taskResult);
-        }
-      };
-
-      // hook the promise to capture the resolve or reject
-      const promise = result.done ? result.done : result.toPromise();
-      promise.then(onTaskResult, (error) => {
-        effectRejected(effectId, error);
-        if (!error.reactotronWasHere) {
-          reactotron.reportError(error);
-        }
-        error.reactotronWasHere = true;
-      });
-    } else {
-      // this is an effect and we are complete
-      effectInfo.status = RESOLVED;
-      effectInfo.result = result;
-      if (effectInfo.name === RACE) {
-        setRaceWinner(effectId, result);
-      }
-    }
-
-    // send it
-    // sendReactotronEffectTree()
-  };
+    resolveEffect(effectId, result)
+  }
 
   // flags on of the children as the winner
   const setRaceWinner = (effectId, resultOrError) => {
-    const winnerLabel = Object.keys(resultOrError)[0];
-    const children = getChildEffectInfos(effectId);
-    const winningChildren = filter(byLabel(winnerLabel), children);
-    const losingChildren = reject(byLabel(winnerLabel), children);
-    const setWinner = (effectInfo) => {
-      effectInfo.winner = true;
-    };
-    const setLoser = (effectInfo) => {
-      effectInfo.loser = true;
-    };
-
-    // set the 1 (hopefully 1) winner -- but i'm not sure
-    forEach(setWinner, winningChildren);
-    forEach(setLoser, losingChildren);
-  };
+    const winnerLabel = Object.keys(resultOrError)[0]
+    for (const childId of Manager.getChildIds(effectId)) {
+      const childEffect = Manager.get(childId)
+      if (childEffect.label === winnerLabel) {
+        childEffect.winner = true
+      }
+    }
+  }
 
   // ---------------- Failing ------------------------------
 
   // redux-saga calls this when an effect is rejected (an error has happened)
   const effectRejected = (effectId, error) => {
-    const effectInfo = effects[effectId];
-    updateDuration(effectInfo);
-    effectInfo.status = REJECTED;
-    effectInfo.error = error;
-    if (effectInfo.name === RACE) {
-      setRaceWinner(effectId, error);
-    }
-
-    // send it
-    // sendReactotronEffectTree()
-  };
+    rejectEffect(effectId, error)
+  }
 
   // ---------------- Cancelling ---------------------------
 
   // redux-saga calls this when an effect is cancelled
   const effectCancelled = (effectId) => {
-    const effectInfo = effects[effectId];
-    updateDuration(effectInfo);
-    effectInfo.status = CANCELLED;
+    cancelEffect(effectId)
+  }
 
-    // send it
-    // sendReactotronEffectTree()
-  };
+  const computeEffectDur = (effect) => {
+    const now = timer()
+    Object.assign(effect, {
+      end: now,
+      duration: now - effect.start,
+    })
+  }
+
+  const resolveEffect = (effectId, result) => {
+    const effect = Manager.get(effectId)
+    if (is.task(result)) {
+      result.toPromise().then(
+        taskResult => {
+          if (result.isCancelled()) {
+            cancelEffect(effectId)
+          } else {
+            resolveEffect(effectId, taskResult)
+            taskResolved(effectId, taskResult)
+          }
+        },
+        taskError => rejectEffect(effectId, taskError),
+      )
+    } else {
+      computeEffectDur(effect)
+      effect.status = RESOLVED
+      effect.result = result
+      updateDuration(effect)
+      if (isRaceEffect(effect.effect)) {
+        setRaceWinner(effectId, result)
+      }
+    }
+  }
+
+  const rejectEffect = (effectId, error) => {
+    const effect = Manager.get(effectId)
+    computeEffectDur(effect)
+    effect.status = REJECTED
+    effect.error = error
+    updateDuration(effect)
+    if (isRaceEffect(effect.effect)) {
+      setRaceWinner(effectId, error)
+    }
+  }
+
+  const cancelEffect = (effectId) => {
+    const effect = Manager.get(effectId)
+    computeEffectDur(effect)
+    effect.status = CANCELLED
+    updateDuration(effect)
+  }
 
   // the interface for becoming a redux-saga monitor
   return {
@@ -284,5 +250,5 @@ export default (reactotron, options, pluginConfig = {}) => {
     effectRejected,
     effectCancelled,
     actionDispatched: () => {},
-  };
+  }
 };

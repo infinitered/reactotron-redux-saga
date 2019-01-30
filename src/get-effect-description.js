@@ -7,6 +7,8 @@ import { isNilOrEmpty } from 'ramdasauce'
 /* eslint-disable no-cond-assign */
 export default effect => {
   if (!effect) return effectTypes.UNKNOWN
+  if (effect.root) return effect.saga.name
+  if (is.iterator(effect)) return effect.name
   if (is.promise(effect)) {
     let display
     if (effect.name) {
@@ -21,7 +23,6 @@ export default effect => {
     }
     return display
   }
-  if (effect.root) return effect.saga.name
   if (is.effect(effect)) {
     const { type , payload: data} = effect
     if (type === effectTypes.TAKE) {
@@ -29,7 +30,7 @@ export default effect => {
     } else if (type === effectTypes.PUT) {
       return data.channel ? data.action : data.action.type
     } else if (type === effectTypes.ALL) {
-      return null
+      return data
     } else if (type === effectTypes.RACE) {
       return null
     } else if (type === effectTypes.CALL) {
@@ -45,18 +46,19 @@ export default effect => {
     } else if (type === effectTypes.SELECT) {
       return data.selector.name
     } else if (type === effectTypes.ACTION_CHANNEL) {
-      return null
+      return data.buffer == null ? data.pattern : data
     } else if (type === effectTypes.CANCELLED) {
       return null
     } else if (type === effectTypes.FLUSH) {
-      return null
+      return data
     } else if (type === effectTypes.GET_CONTEXT) {
-      return null
+      return data
     } else if (type === effectTypes.SET_CONTEXT) {
-      return null
+      return data
     }
   }
   if (is.array(effect)) return null
-  if (is.iterator(effect)) return effect.name
+
+
   return effectTypes.UNKNOWN
 }

@@ -2,7 +2,7 @@ import * as is from "@redux-saga/is"
 import * as effectTypes from "./saga-constants"
 export default effect => {
   if (!effect) return effectTypes.UNKNOWN
-  if (is.promise(effect)) return SagaConstants.PROMISE
+  if (is.promise(effect)) return effectTypes.PROMISE
   if (is.effect(effect)) {
     const { type } = effect
     if (type === effectTypes.TAKE) {
