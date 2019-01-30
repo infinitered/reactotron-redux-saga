@@ -113,10 +113,6 @@ export default (reactotron, options, pluginConfig = {}) => {
               extra = sourceEffectInfo.effect.payload.action
               break
 
-            case SELECT:
-              extra = sourceEffectInfo.effect.payload.action
-              break
-
             // children handle this
             case RACE:
               break
