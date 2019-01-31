@@ -6370,10 +6370,10 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-reactotron-core-client@^2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/reactotron-core-client/-/reactotron-core-client-2.1.4.tgz#1c8eaf460d34d84d7b9437ffa3c5b07301882d45"
-  integrity sha512-dYMwDD+CTh/YqagR8k73Kr+ORQcS/gROofDvw8RlUoW+jRlZ4K+I5E30OJaJTMM2IMA3B7U/JtjegGOvsdzi0A==
+reactotron-core-client@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/reactotron-core-client/-/reactotron-core-client-2.2.1.tgz#2b7417df7831419ce9bc44b025f86012fda7e582"
+  integrity sha512-VINa2vuSMOCqRCaRRdTdk10vrj7xRhRUN1hpbvtANMlZmByQOf+kqRVqR6uad2jPE3nn/47V7F23MAkS8lDNug==
 
 read-cmd-shim@^1.0.1, read-cmd-shim@~1.0.1:
   version "1.0.1"

@@ -124,6 +124,7 @@ export default (reactotron, options, pluginConfig = {}) => {
               break
           }
         }
+
         // assemble the structure
         children.push({
           depth,
@@ -145,7 +146,6 @@ export default (reactotron, options, pluginConfig = {}) => {
       const xs = Manager.getChildIds(effectId);
       forEach(effectId => buildChild(0, effectId), xs)
     }
-
     // saga not blacklisted?
     if (!contains(effectInfo.description, exceptions)) {
       reactotron.send("saga.task.complete", {

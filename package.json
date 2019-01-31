@@ -55,7 +55,7 @@
   "dependencies": {
     "ramda": "^0.24.1",
     "ramdasauce": "^2.0.0",
-    "reactotron-core-client": "^2.1.4",
+    "reactotron-core-client": "^2.2.1",
     "redux": "^4.0.1",
     "redux-saga": "^1.0.0"
   }
