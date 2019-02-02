@@ -11,5 +11,5 @@ export default {
     })
   ],
   dest: 'dist/index.js',
-  external: ['redux-saga/utils', 'ramda', 'ramdasauce']
+  external: ['@redux-saga/is', 'redux-saga/effects', 'ramda', 'ramdasauce']
 }

@@ -26,6 +26,7 @@
     "url": "https://github.com/infinitered/reactotron/issues"
   },
   "devDependencies": {
+    "@redux-saga/testing-utils": "^1.0.1",
     "@semantic-release/git": "^7.0.5",
     "ava": "^0.20.0",
     "babel-core": "^6.25.0",
