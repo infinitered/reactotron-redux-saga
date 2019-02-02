@@ -1,20 +1,43 @@
-import { is, asEffect } from 'redux-saga/utils'
-
-import * as SagaConstants from './saga-constants'
-
+import * as is from "@redux-saga/is"
+import * as effectTypes from "./saga-constants"
 export default effect => {
-  if (!effect) return SagaConstants.UNKNOWN
-  if (effect instanceof Promise) return SagaConstants.PROMISE
-  if (asEffect.take(effect)) return SagaConstants.TAKE
-  if (asEffect.put(effect)) return SagaConstants.PUT
-  if (asEffect.call(effect)) return SagaConstants.CALL
-  if (asEffect.cps(effect)) return SagaConstants.CPS
-  if (asEffect.fork(effect)) return SagaConstants.FORK
-  if (asEffect.join(effect)) return SagaConstants.JOIN
-  if (asEffect.race(effect)) return SagaConstants.RACE
-  if (asEffect.cancel(effect)) return SagaConstants.CANCEL
-  if (asEffect.select(effect)) return SagaConstants.SELECT
-  if (is.array(effect)) return SagaConstants.PARALLEL
-  if (is.iterator(effect)) return SagaConstants.ITERATOR
-  return SagaConstants.UNKNOWN
+  if (!effect) return effectTypes.UNKNOWN
+  if (is.promise(effect)) return effectTypes.PROMISE
+  if (is.effect(effect)) {
+    const { type } = effect
+    if (type === effectTypes.TAKE) {
+      return effectTypes.TAKE
+    } else if (type === effectTypes.PUT) {
+      return effectTypes.PUT
+    } else if (type === effectTypes.ALL) {
+      return effectTypes.ALL
+    } else if (type === effectTypes.RACE) {
+      return effectTypes.RACE
+    } else if (type === effectTypes.CALL) {
+      return effectTypes.CALL
+    } else if (type === effectTypes.CPS) {
+      return effectTypes.CPS
+    } else if (type === effectTypes.FORK) {
+      return effectTypes.FORK
+    } else if (type === effectTypes.JOIN) {
+      return effectTypes.JOIN
+    } else if (type === effectTypes.CANCEL) {
+      return effectTypes.CANCEL
+    } else if (type === effectTypes.SELECT) {
+      return effectTypes.SELECT
+    } else if (type === effectTypes.ACTION_CHANNEL) {
+      return effectTypes.ACTION_CHANNEL
+    } else if (type === effectTypes.CANCELLED) {
+      return effectTypes.CANCELLED
+    } else if (type === effectTypes.FLUSH) {
+      return effectTypes.FLUSH
+    } else if (type === effectTypes.GET_CONTEXT) {
+      return effectTypes.GET_CONTEXT
+    } else if (type === effectTypes.SET_CONTEXT) {
+      return effectTypes.SET_CONTEXT
+    }
+  }
+  if (is.array(effect)) return effectTypes.PARALLEL
+  if (is.iterator(effect)) return effectTypes.ITERATOR
+  return effectTypes.UNKNOWN
 }

@@ -1,6 +1,6 @@
 {
   "name": "reactotron-redux-saga",
-  "version": "2.1.0",
+  "version": "2.1.4",
   "description": "A Reactotron plugin for Redux Saga.",
   "files": [
     "dist",
@@ -55,8 +55,8 @@
   "dependencies": {
     "ramda": "^0.24.1",
     "ramdasauce": "^2.0.0",
-    "reactotron-core-client": "^2.1.4",
-    "redux": "^3.7.1",
-    "redux-saga": "^0.16.1"
+    "reactotron-core-client": "^2.2.1",
+    "redux": "^4.0.1",
+    "redux-saga": "^1.0.0"
   }
 }
