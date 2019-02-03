@@ -1,19 +1,22 @@
-// Provides an additional description of the effect.  A friendlier name
-// to display to the humans.
-import * as is from '@redux-saga/is'
-import * as effectTypes from './saga-constants'
-import { isNilOrEmpty } from 'ramdasauce'
+import * as is from "@redux-saga/is"
+import { Effect } from "@redux-saga/types"
 
-/* eslint-disable no-cond-assign */
-export default effect => {
+import * as effectTypes from "../constants"
+
+function getEffectDescription(effect: Effect | any[] | IterableIterator<any> | Promise<any>) {
   if (!effect) return effectTypes.UNKNOWN
-  if (effect.root) return effect.saga.name
-  if (is.iterator(effect)) return effect.name
+
+  if ((effect as any).root) return (effect as any).saga.name // TODO: Better typing
+  if (is.iterator(effect)) {
+    console.log(effect)
+    return (effect as any).name
+  }
+  if (is.array(effect)) return null
   if (is.promise(effect)) {
-    let display
-    if (effect.name) {
+    let display: string
+    if ((effect as any).name) {
       // a promise object with a manually set name prop for display reasons
-      display = `${effectTypes.PROMISE}(${effect.name})`
+      display = `${effectTypes.PROMISE}(${(effect as any).name})`
     } else if (effect.constructor instanceof Promise.constructor) {
       // an anonymous promise
       display = effectTypes.PROMISE
@@ -24,9 +27,9 @@ export default effect => {
     return display
   }
   if (is.effect(effect)) {
-    const { type , payload: data} = effect
+    const { type, payload: data } = effect as Effect
     if (type === effectTypes.TAKE) {
-      return data.pattern || 'channel'
+      return data.pattern || "channel"
     } else if (type === effectTypes.PUT) {
       return data.channel ? data.action : data.action.type
     } else if (type === effectTypes.ALL) {
@@ -34,7 +37,7 @@ export default effect => {
     } else if (type === effectTypes.RACE) {
       return null
     } else if (type === effectTypes.CALL) {
-      return isNilOrEmpty(data.fn.name) ? '(anonymous)' : data.fn.name
+      return !data.fn.name || data.fn.name.trim() === "" ? "(anonymous)" : data.fn.name
     } else if (type === effectTypes.CPS) {
       return data.fn.name
     } else if (type === effectTypes.FORK) {
@@ -57,8 +60,8 @@ export default effect => {
       return data
     }
   }
-  if (is.array(effect)) return null
-
 
   return effectTypes.UNKNOWN
 }
+
+export default getEffectDescription
