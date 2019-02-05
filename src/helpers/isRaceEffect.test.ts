@@ -9,6 +9,6 @@ describe("isRaceEffect", () => {
   })
 
   it("should tell us something isn't a race effect", () => {
-      expect(isRaceEffect(Effects.take())).toBeFalsy();
+    expect(isRaceEffect(Effects.take())).toBeFalsy()
   })
 })
