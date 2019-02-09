@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
       "allowJs": false,
+      "noEmit": true,
       "allowSyntheticDefaultImports": true,
       "experimentalDecorators": true,
       "module": "es2015",
@@ -13,5 +14,5 @@
       "target": "es2015"
     },
     "exclude": ["node_modules"],
-    "include": ["src", "test"]
+    "include": ["src"]
   }
