@@ -12,7 +12,11 @@ export interface PluginConfig {
   except?: string[]
 }
 
-export default (reactotron: Reactotron, options: any, pluginConfig: PluginConfig = {}): SagaMonitor => {
+export default (
+  reactotron: Reactotron,
+  options: any,
+  pluginConfig: PluginConfig = {}
+): SagaMonitor => {
   const manager = new EffectManager()
   const exceptions = pluginConfig.except || []
   const timer = reactotron.startTimer()
@@ -112,12 +116,13 @@ export default (reactotron: Reactotron, options: any, pluginConfig: PluginConfig
 
   function setRaceWinner(raceEffectId: number, result: any) {
     const winnerLabel = Object.keys(result)[0]
-    for (const childId of manager.getChildIds(raceEffectId)) {
+
+    manager.getChildIds(raceEffectId).forEach(childId => {
       const childEffect = manager.get(childId)
       if (childEffect.label === winnerLabel) {
         childEffect.winner = true
       }
-    }
+    })
   }
 
   function rootSagaStarted(options: { effectId: number; saga: Saga; args: any[] }) {
