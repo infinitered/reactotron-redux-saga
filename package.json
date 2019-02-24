@@ -1,6 +1,6 @@
 {
   "name": "reactotron-redux-saga",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "A Reactotron plugin for Redux Saga.",
   "files": [
     "dist",
