@@ -1,6 +1,6 @@
 import { SagaMonitor, Saga } from "@redux-saga/core"
 import * as is from "@redux-saga/is"
-import { Reactotron } from "reactotron-react-native"
+import { Reactotron } from "reactotron-core-client"
 
 import * as effectTypes from "./constants"
 import EffectManager, { MonitoredEffect } from "./EffectManager"
