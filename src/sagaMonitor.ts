@@ -12,11 +12,7 @@ export interface PluginConfig {
   except?: string[]
 }
 
-export default (
-  reactotron: Reactotron,
-  options: any,
-  pluginConfig: PluginConfig = {}
-): SagaMonitor => {
+export default (reactotron: Reactotron, pluginConfig: PluginConfig = {}): SagaMonitor => {
   const manager = new EffectManager()
   const exceptions = pluginConfig.except || []
   const timer = reactotron.startTimer()

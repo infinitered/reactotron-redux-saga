@@ -19,5 +19,5 @@ export default {
       : null,
     filesize(),
   ],
-  external: ["@redux-saga/is", "redux-saga/effects", "@babel/runtime/helpers/esm/extends"],
+  external: ["@redux-saga/is", "redux-saga/effects", "@babel/runtime/helpers/esm/extends", "reactotron-core-client"],
 }

@@ -5,7 +5,7 @@ import createSagaMonitor, { PluginConfig } from "./sagaMonitor"
 
 export default (pluginConfig: PluginConfig) => (reactotron: Reactotron) => ({
   features: {
-    createSagaMonitor: (options: any) => createSagaMonitor(reactotron, options, pluginConfig),
+    createSagaMonitor: () => createSagaMonitor(reactotron, pluginConfig),
   },
 })
 
