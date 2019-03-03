@@ -9,14 +9,7 @@ export default (pluginConfig: PluginConfig) => (reactotron: Reactotron) => ({
   },
 })
 
-declare module "reactotron-react-native" {
-  // eslint-disable-next-line import/export
-  export interface Reactotron {
-    createSagaMonitor(): SagaMonitor
-  }
-}
-
-declare module "reactotron-react-js" {
+declare module "reactotron-core-client" {
   // eslint-disable-next-line import/export
   export interface Reactotron {
     createSagaMonitor(): SagaMonitor
