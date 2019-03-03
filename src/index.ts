@@ -12,6 +12,6 @@ export default (pluginConfig: PluginConfig) => (reactotron: Reactotron) => ({
 declare module "reactotron-core-client" {
   // eslint-disable-next-line import/export
   export interface Reactotron {
-    createSagaMonitor(): SagaMonitor
+    createSagaMonitor?: () => SagaMonitor
   }
 }
