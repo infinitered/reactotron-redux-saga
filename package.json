@@ -3,7 +3,7 @@
   "version": "4.2.0",
   "description": "A Reactotron plugin for Redux Saga.",
   "author": "Infinite Red",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/infinitered/reactotron-redux-saga/issues"
   },
