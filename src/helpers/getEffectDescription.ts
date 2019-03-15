@@ -33,7 +33,7 @@ function getEffectDescription(effect: Effect | any[] | IterableIterator<any> | P
     } else if (type === effectTypes.PUT) {
       return data.channel ? data.action : data.action.type
     } else if (type === effectTypes.ALL) {
-      return data
+      return null
     } else if (type === effectTypes.RACE) {
       return null
     } else if (type === effectTypes.CALL) {
