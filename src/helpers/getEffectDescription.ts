@@ -8,8 +8,7 @@ function getEffectDescription(effect: Effect | any[] | IterableIterator<any> | P
 
   if ((effect as any).root) return (effect as any).saga.name // TODO: Better typing
   if (is.iterator(effect)) {
-    console.log(effect)
-    return (effect as any).name
+    return (effect as any).name || effectTypes.UNKNOWN
   }
   if (is.array(effect)) return null
   if (is.promise(effect)) {
