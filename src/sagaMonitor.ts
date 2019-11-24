@@ -1,5 +1,6 @@
 import { SagaMonitor, Saga } from "@redux-saga/core"
 import * as is from "@redux-saga/is"
+import { Effect } from "@redux-saga/types"
 import { Reactotron } from "reactotron-core-client"
 
 import * as effectTypes from "./constants"
@@ -43,7 +44,7 @@ export default (reactotron: Reactotron, pluginConfig: PluginConfig = {}): SagaMo
           // Do Nothing for now
           break
         default:
-          extra = effect.effect.payload
+          extra = (effect.effect || {} as Effect).payload
           break
       }
     }
