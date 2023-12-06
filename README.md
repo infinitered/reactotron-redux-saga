@@ -1,3 +1,6 @@
+> [!WARNING]  
+> This plugin has been deprecated since `redux-saga` has become less popular compared to other solutions. If you would like to see it revived, please file an issue at https://github.com/infinitered/reactotron/issues or consider submitting a PR at https://github.com/infinitered/reactotron/.
+
 # reactotron-redux-saga
 
 A `reactotron` plugin to provide insights into `redux-saga`
